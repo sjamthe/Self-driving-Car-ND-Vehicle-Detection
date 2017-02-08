@@ -80,7 +80,8 @@ I also used about 10k images from this set kept separately to test my models.
 My final video was produced using process_video wrapper. I used cv2.VideoCapture to read each frame and used moviepy.editor to stitch the frame together.
 
 Here's a [link to my video result](./project_video-out.mp4)
-![Final Video][image5](./project_video-out.mp4)
+
+![Final Video][image5]
 
 ---
 
