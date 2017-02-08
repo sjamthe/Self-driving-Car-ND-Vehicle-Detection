@@ -27,7 +27,7 @@ I followed the following steps for this project:
 [image2]: ./output_images/all_sliding_windows.jpg
 [image3]: ./output_images/threshold1.jpg
 [image4]: ./output_images/threshold2.jpg
-[image5]: ./output_images/example_output.jpg
+[image5]: ./output_images/processed_img.jpg
 [video1]: ./project_video.mp4
 
 ---
