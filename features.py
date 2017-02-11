@@ -123,21 +123,21 @@ def img_features(image, version='v1'):
     #print("hog_features max = ",np.min(hog_features),np.max(hog_features))
     # Append the new feature vector to the features list
     #All features together give 99.21 accuracy
-    if(version == 'v1'):
+    if(version == 'v2'):
         cspace = 'Gray' # Can be RGB, HSV, LUV, HLS, YUV, YCrCb (Gray is best)
-        orient = 9
+        orient = 12
         pix_per_cell = 12
         cell_per_block = 2
-        hog_channel = 0 # Can be 0, 1, 2, 'Gray' or "ALL"
+        hog_channel = 'Gray' # Can be 0, 1, 2, 'Gray' or "ALL"
 
         hog_features1 = get_hog_features(image, cspace, hog_channel, orient,
                                     pix_per_cell, cell_per_block)
         #features = np.concatenate((hsv_hist_features,rgb_hist_features)) #v1 features
         features = np.array(hog_features1)
-    elif(version == 'v2'):
-        cspace = 'YCrCb' # Can be RGB, HSV, LUV, HLS, YUV, YCrCb (HSV, 9,12,2,ALL)
+    elif(version == 'v1'):
+        cspace = 'Gray' # Can be RGB, HSV, LUV, HLS, YUV, YCrCb (HSV, 9,12,2,ALL)
         orient = 9
-        pix_per_cell = 8
+        pix_per_cell = 12
         cell_per_block = 2
         hog_channel = "ALL" # Can be 0, 1, 2, 'Gray' or "ALL"
 
@@ -201,7 +201,7 @@ def main():
         dump_features(images,'GTI-cars',version)
         images = glob.glob(dirname + 'non-vehicles/GTI/*.png')
         dump_features(images,'GTI-non-cars',version)
-    if(1):
+    if(0):
         for suffix in ['5','10','11','15']:
             images = udacity_images('non-vehicles',10000,suffix)
             dump_features(images,'Udacity-non-cars'+suffix,version)

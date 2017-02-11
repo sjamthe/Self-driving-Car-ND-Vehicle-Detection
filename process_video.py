@@ -68,11 +68,18 @@ def get_frame(cap):
 
 def process_frame(frame, counter, hist_windows, X_scaler, svc, version):
   #history image to look at
-  HIST=10
+  HIST=2
   #search_classify expects RGB
   frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-  on_windows = search_classify(frame, X_scaler, svc, version)
-  final_img, hist_windows = historic_persp(frame, on_windows, hist_windows, counter, HIST)
+
+  #first pass
+  windows = all_sliding_windows(frame, max_image_y=340)
+  on_windows, probs = search_classify(frame, windows, X_scaler, svc, version)
+  #focused search
+  on_windows = focused_windows(frame, on_windows)
+  on_windows, probs = search_classify(frame, on_windows, X_scaler, svc, version)
+  print("HIST",HIST)
+  final_img, hist_windows = historic_persp(frame, on_windows, probs, hist_windows, counter, HIST)
   if(0):
     test_img = cv2.cvtColor(final_img, cv2.COLOR_RGB2BGR)
     cv2.imshow('image',test_img)

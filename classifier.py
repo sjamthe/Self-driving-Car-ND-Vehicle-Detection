@@ -32,7 +32,7 @@ def trainLinearSVC(X_train, y_train):
     }
     """
     parameters = {
-        'C': [100],
+        'C': [.01],
         'penalty': ['l2'],
          'max_iter': [100]
     }
@@ -139,23 +139,22 @@ def main():
         version = 'v2'
 
     featurefiles = [
-             '../data/KITTI-cars-features-'+version+'.pkl',
-             '../data/KITTI-non-cars-features-'+version+'.pkl',
-             '../data/GTI-cars-features-'+version+'.pkl',
-             '../data/GTI-non-cars-features-'+version+'.pkl',
-             '../data/Udacity-cars5-features-'+version+'.pkl',
-             '../data/Udacity-non-cars5-features-'+version+'.pkl',
-             '../data/Udacity-cars10-features-'+version+'.pkl',
-             '../data/Udacity-non-cars10-features-'+version+'.pkl',
-             '../data/Udacity-cars11-features-'+version+'.pkl',
-             '../data/Udacity-non-cars11-features-'+version+'.pkl',
-             '../data/Udacity-cars15-features-'+version+'.pkl',
-             '../data/Udacity-non-cars15-features-'+version+'.pkl',
-             '../data/Project-non-cars-features-'+version+'.pkl'
+             '../data/KITTI-cars-features-'+version+'.pkl'
+             ,'../data/KITTI-non-cars-features-'+version+'.pkl'
+             ,'../data/GTI-cars-features-'+version+'.pkl'
+             ,'../data/GTI-non-cars-features-'+version+'.pkl'
+             #,'../data/Udacity-cars5-features-'+version+'.pkl'
+             #,'../data/Udacity-non-cars5-features-'+version+'.pkl'
+             #,'../data/Udacity-cars10-features-'+version+'.pkl'
+             #,'../data/Udacity-non-cars10-features-'+version+'.pkl'
+             #,'../data/Udacity-cars11-features-'+version+'.pkl'
+             #,'../data/Udacity-non-cars11-features-'+version+'.pkl'
+             #,'../data/Udacity-cars15-features-'+version+'.pkl'
+             #,'../data/Udacity-non-cars15-features-'+version+'.pkl'
+             ,'../data/Project-non-cars-features-'+version+'.pkl'
              ]
 
     for file in featurefiles:
-    #for file in sys.argv[2:]:
         features = joblib.load(file)
         print ("Read %d features from %s" % (len(features), file))
         if 'non-cars' in file:
