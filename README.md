@@ -1,5 +1,12 @@
 ##Vehicle Detection - [Project 5](https://github.com/udacity/CarND-Vehicle-Detection/blob/master/README.md)
 
+**Update**
+
+After trying various combination of HOG features I decided to use Convolutional Neural Network based model to classify vehicles vs no-vehicles. I used the same model that I used for traffic signs detection the only change was to the last layer which had to two output instead of 47. This [CNN classifier](./vehicle_model.py) worked a lot better than all previous classifiers.
+
+Another change I did was to add another layer of window search called 'focused window search' on the windows that were already identified. Each window that is identified to have a car (with probability of atleast 80%) is split into multiple windows of 64x64 sizes and these windows are further classified (for same 80% accuracy). This helps reduce the size of the box around cars to more precise one.
+
+[Here](./project_video-dbg.mp4) is a video with a debug showing threshold, and here is the [final video](./project_video-out.mp4).
 
 **Summary**
 
