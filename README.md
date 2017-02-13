@@ -6,7 +6,7 @@ After trying various combination of HOG features I decided to use Convolutional 
 
 Another change I did was to add another layer of window search called 'focused window search' on the windows that were already identified. Each window that is identified to have a car (with probability of atleast 80%) is split into multiple windows of 64x64 sizes and these windows are further classified (for same 80% accuracy). This helps reduce the size of the box around cars to more precise one.
 
-[Here](./project_video-dbg.mp4) is a video with a debug showing threshold, and here is the [final video](./project_video-out.mp4).
+[Here](https://youtu.be/Ky_FJJ2KUB4) is a video with a debug showing threshold, and here is the [final video](https://youtu.be/Ybeusi4-y3w).
 
 **Summary**
 
@@ -86,7 +86,7 @@ I also used about 10k images from this set kept separately to test my models.
 
 My final video was produced using process_video wrapper. I used cv2.VideoCapture to read each frame and used moviepy.editor to stitch the frame together.
 
-Here's a [link to my video result](./project_video-out.mp4)
+Here's a [link to my video result](https://youtu.be/Ybeusi4-y3w)
 
 ![Final Video][image5]
 
