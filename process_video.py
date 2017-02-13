@@ -6,7 +6,7 @@ for each image, writes the image in a folder named by argv[2].
 In the end it writes converts all the output images into a video named argv[1]-out.mp4
 
 """
-from search_classify import search_classify, historic_persp
+from search_classify import search_classify, all_sliding_windows, historic_persp
 import cv2
 import sys
 import os
@@ -21,7 +21,7 @@ def makemovie(images, outfile):
   clip.write_videofile(outfile)
 
 def load_model():
-  model = 'hogGray-v1.pkl'
+  model = 'hogGraysvc-v2.pkl'
   if 'v1' in model:
     version = 'v1'
   else:
@@ -68,7 +68,7 @@ def get_frame(cap):
 
 def process_frame(frame, counter, hist_windows, X_scaler, svc, version):
   #history image to look at
-  HIST=2
+  HIST=10
   #search_classify expects RGB
   frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
@@ -76,9 +76,9 @@ def process_frame(frame, counter, hist_windows, X_scaler, svc, version):
   windows = all_sliding_windows(frame, max_image_y=340)
   on_windows, probs = search_classify(frame, windows, X_scaler, svc, version)
   #focused search
-  on_windows = focused_windows(frame, on_windows)
-  on_windows, probs = search_classify(frame, on_windows, X_scaler, svc, version)
-  print("HIST",HIST)
+  #on_windows = focused_windows(frame, on_windows)
+  #on_windows, probs = search_classify(frame, on_windows, X_scaler, svc, version)
+  #print("HIST",HIST)
   final_img, hist_windows = historic_persp(frame, on_windows, probs, hist_windows, counter, HIST)
   if(0):
     test_img = cv2.cvtColor(final_img, cv2.COLOR_RGB2BGR)
@@ -100,7 +100,7 @@ def process_video(video, directory):
                                             X_scaler, svc, version)
     counter+=1
     images.append(final_img)
-    if(0):
+    if(1):
       test_img = cv2.cvtColor(final_img, cv2.COLOR_RGB2BGR)
       cv2.imwrite(directory+'/frame'+str(counter)+'.jpg',test_img)
   cap.release()

@@ -9,6 +9,7 @@ import fnmatch
 from collections import deque
 from features import img_features
 from sliding_window import all_sliding_windows, draw_boxes, focused_windows
+from keras import models
 
 """
 Use sliding window technique to break image in windows
@@ -18,6 +19,9 @@ that may have probability (above PROB_CAR) that it has a vehicle
 def search_classify(image, windows, X_scaler, svc, version):
   on_windows = []
   probs = []
+  if len(windows) == 0:
+    return on_windows, probs
+
   features = []
   size = (64, 64)
   for window in windows:
@@ -36,7 +40,7 @@ def search_classify(image, windows, X_scaler, svc, version):
   #predictions = svc.predict(test_features)
   probabilities = svc.predict_proba(test_features)
   cnt = 0
-  PROB_CAR = 0.5 #0.8
+  PROB_CAR = 0.8 #0.5
   for pnocar,pcar in probabilities:
     if pcar > PROB_CAR:
       window = windows[cnt]
@@ -51,6 +55,49 @@ def search_classify(image, windows, X_scaler, svc, version):
   print ("Found ",len(on_windows),"car windows out of ",len(windows))
   return on_windows, probs
 
+def cnn_search_classify(image, windows, model):
+  on_windows = []
+  probs = []
+  if len(windows) == 0:
+    return on_windows, probs
+
+  images = []
+  size = (64, 64)
+  for window in windows:
+    #print("searching ",window)
+    img = cv2.resize(image[window[0][1]:window[1][1],
+                      window[0][0]:window[1][0]],
+                     size, interpolation = cv2.INTER_AREA)
+    img = rescale_resize_image(img)
+    images.append(img)
+
+  X_input = np.array(images)
+  probabilities = model.predict_proba(X_input, batch_size=32, verbose=0)
+  #print("prob",probabilities)
+  cnt = 0
+  PROB_CAR = 0.8 #0.8
+  for pnocar,pcar in probabilities:
+    if pcar > PROB_CAR:
+      window = windows[cnt]
+      on_windows.append(window)
+      probs.append(pcar)
+      if(0):
+        window_img = draw_boxes(image, on_windows, color=(0, 0, 255), thick=6)
+        plt.imshow(window_img)
+        plt.show()
+    cnt+=1
+  print ("Found ",len(on_windows),"car windows out of ",len(windows))
+  return on_windows, probs
+
+def rescale_resize_image(img):
+  #model is trained in 32x32 images
+  size = (32,32)
+  img = cv2.resize(img, size, interpolation=cv2.INTER_NEAREST)
+
+  max = np.max(img)
+  if(max <= 1):
+      img = img.astype(np.float32)*255.
+  return img
 
 def add_heat(heatmap, bbox_list, probs):
     # Iterate through list of bboxes
@@ -105,7 +152,7 @@ def historic_persp(image, on_windows, probs, hist_windows, sequence, HIST):
   heatmap = heatmap/count
   maxcars = np.max(heatmap)
   histogram=np.max(heatmap,axis=0) #get sum
-  threshold = 1 #1.5
+  threshold = .5 #1.5
   #threshold = (min(counter,HIST) +1) * 3.1
   heatmap = apply_threshold(heatmap, threshold)
   labels = label(heatmap)
@@ -126,12 +173,17 @@ def historic_persp(image, on_windows, probs, hist_windows, sequence, HIST):
     ax2.plot(histogram_th)
     ax2.plot(np.median(histogram))
     #plt.show()
-    plt.savefig('test_project_video/frame'+str(sequence)+'.jpg') #,bbox_inches='tight'
+    plt.savefig('test_project_video/frame'+str(sequence)+'.jpg',bbox_inches='tight')
     plt.close(f)
+    #final output
+    test_img = cv2.cvtColor(final_img, cv2.COLOR_RGB2BGR)
+    cv2.imwrite('out_project_video/frame'+str(sequence)+'.jpg',test_img)
+
   return final_img, hist_windows
 
 def process_images(files, X_scaler, svc, version):
   #number of consecutive images used to predict
+  model = models.load_model('vehicle-model.h5')
   HIST=10
   hist_windows = deque()
   sequence = 0
@@ -139,12 +191,14 @@ def process_images(files, X_scaler, svc, version):
     image = mpimg.imread(filename)
     #first pass
     windows = all_sliding_windows(image, max_image_y=340)
-    on_windows,probs = search_classify(image, windows, X_scaler, svc, version)
+    on_windows,probs = cnn_search_classify(image, windows, model)
+    #on_windows,probs = search_classify(image, windows, X_scaler, svc, version)
     #window_img = draw_boxes(image, on_windows, color=(20, 200, 255), thick=2)
     #plt.imshow(window_img)
     #plt.show()
     #focused search
-    #on_windows = focused_windows(image, on_windows)
+    on_windows = focused_windows(image, on_windows)
+    on_windows,probs = cnn_search_classify(image, windows, model)
     #on_windows, probs = search_classify(image, on_windows, X_scaler, svc, version)
     #window_img = draw_boxes(image, on_windows, color=(20, 200, 255), thick=2)
     #plt.imshow(window_img)
@@ -152,12 +206,12 @@ def process_images(files, X_scaler, svc, version):
     final_img, hist_windows = historic_persp(image, on_windows, probs, hist_windows,
                                               sequence, HIST)
     sequence += 1
-#python3 search_classify.py /Volumes/personal/SDC-course-notes/project4/CarND-Advanced-Lane-Lines/project_video/frame[0-9].jpg /Volumes/personal/SDC-course-notes/project4/CarND-Advanced-Lane-Lines/project_video/frame[1-9][0-9].jpg /Volumes/personal/SDC-course-notes/project4/CarND-Advanced-Lane-Lines/project_video/frame[1-9][1-9][0-9].jpg /Volumes/personal/SDC-course-notes/project4/CarND-Advanced-Lane-Lines/project_video/frame[1-2][1-9][1-9][0-9].jpg
+#python3 search_classify.py /Volumes/personal/SDC-course-notes/project4/CarND-Advanced-Lane-Lines/project_video/frame[0-9].jpg /Volumes/personal/SDC-course-notes/project4/CarND-Advanced-Lane-Lines/project_video/frame[1-9][0-9].jpg /Volumes/personal/SDC-course-notes/project4/CarND-Advanced-Lane-Lines/project_video/frame[1-9][0-9][0-9].jpg /Volumes/personal/SDC-course-notes/project4/CarND-Advanced-Lane-Lines/project_video/frame[1][0-9][0-9][0-9].jpg
 
 """ Main function for testing purpose. Input sequence of images """
 if __name__ == '__main__':
-  model = 'hogGraysvc-v2.pkl'
-  #model = 'hogGray-v1.pkl'
+  #model = 'hogGraysvc-v2.pkl'
+  model = 'hogGray-v1.pkl'
   if 'v1' in model:
     version = 'v1'
   else:

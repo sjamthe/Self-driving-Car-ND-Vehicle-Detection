@@ -66,7 +66,7 @@ def slide_window(window_list, img, x_start_stop=[None, None],
 
 def all_sliding_windows(image, max_image_y=420):
   windows = []
-  max_range = 7
+  max_range = 7 #7
   for n in range(0, max_range):
     winsize = np.int(max_image_y * (1- n/max_range))
     #print("win size %dx%d" %(winsize,winsize))

@@ -10,14 +10,13 @@ from scipy.ndimage.measurements import label
 from features import img_features
 from sliding_window import all_sliding_windows, draw_boxes
 
-
 def classify(img, X_scaler, svc, version):
   features = img_features(img, version=version)
   test_features = X_scaler.transform(np.array(features).reshape(1, -1))
   prediction = svc.predict(test_features)
   return prediction
 
-# python3 test.py hogGray-v1.pklvehicles 1
+# python3 test.py hogGray-v1.pkl vehicles 1
 # python3 test.py hogGray-v1.pkl non-vehicles 1
 def main():
   model = sys.argv[1]
